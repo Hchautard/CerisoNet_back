@@ -6,7 +6,30 @@ import http from "http";
 import path from "path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { Pool } from 'pg';
+import * as dotenv from 'dotenv';
  
+dotenv.config();
+
+// Config de la connexion à PostgreSQL
+const pgPool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+
+// Vérification de la connexion à PostgreSQL
+pgPool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error("Erreur de connexion à PostgreSQL:", err);
+  } else {
+    console.log("Connexion à PostgreSQL réussie");
+  }
+});
+
+
 // Obtention du chemin absolu du fichier
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -54,8 +77,10 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+// Informations de connexion à PostgreSQL
+
 // Route de connexion (TODO: ajouter une véritable authentification)
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
    try {
      const { email, password } = req.body;
      
