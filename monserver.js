@@ -6,7 +6,8 @@ import http from "http";
 import path from "path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { Pool } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 import * as dotenv from 'dotenv';
  
 dotenv.config();
