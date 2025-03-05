@@ -6,8 +6,7 @@ import http from "http";
 import path from "path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import pkg from 'pg';
-const { Pool } = pkg;
+import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
  
 dotenv.config();
@@ -20,6 +19,8 @@ const pgPool = new Pool({
   password: process.env.DB_PASSWORD,
   port: parseInt(process.env.DB_PORT || '5432'),
 });
+
+console.log(pgPool);
 
 // Vérification de la connexion à PostgreSQL
 pgPool.connect((err, client, done) => {
