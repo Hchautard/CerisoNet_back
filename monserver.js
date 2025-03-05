@@ -22,7 +22,7 @@ const pgPool = new Pool({
 });
 
 // Vérification de la connexion à PostgreSQL
-pgPool.query('SELECT NOW()', (err, res) => {
+pgPool.connect((err, client, done) => {
   if (err) {
     console.error("Erreur de connexion à PostgreSQL:", err);
   } else {
