@@ -73,7 +73,12 @@ app.post('/login', async (req, res) => {
       port: parseInt(process.env.DB_PORT || '5432'),
     });
 
-    console.log(pgPool)
+    console.log(process.env.DB_USER,
+      process.env.DB_HOST,
+      process.env.DB_NAME,
+      process.env.DB_PASSWORD,
+      parseInt(process.env.DB_PORT || '5432')
+    )
 
     // Vérification de la connexion à PostgreSQL
     pgPool.connect((err, client, done) => {
