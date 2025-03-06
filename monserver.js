@@ -59,8 +59,6 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Informations de connexion à PostgreSQL
-
 // Route de connexion 
 app.post('/login', async (req, res) => {
 
@@ -72,8 +70,6 @@ app.post('/login', async (req, res) => {
       password: process.env.DB_PASSWORD,
       port: parseInt(process.env.DB_PORT || '5432'),
     });
-
-    console.log(pgPool);  
 
     // Vérification de la connexion à PostgreSQL
     pgPool.connect((err, client, done) => {
@@ -97,15 +93,17 @@ app.post('/login', async (req, res) => {
 
      // Recherche de l'utilisateur dans PostgreSQL
      const result = await pgPool.query(
-       'SELECT * FROM compte WHERE email = $1',
+       'SELECT * FROM fredouil.compte WHERE email = $1',
        [email]
      );
 
      const user = result.rows[0];
      
      // Vérifiez si l'utilisateur existe et si le mot de passe correspond
-     // Note: Dans un vrai projet, utilisez bcrypt pour comparer les mots de passe hachés
-     if (!user || user.password !== password) {
+     // Hachage du mot de passe en SHA1
+     const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
+     console.log(user, hashedPassword);
+     if (!user || user.motpasse !== password) {
        return res.status(401).json({
          success: false,
          message: "Email ou mot de passe incorrect"
