@@ -93,7 +93,7 @@ app.post('/login', async (req, res) => {
 
      // Recherche de l'utilisateur dans PostgreSQL
      const result = await pgPool.query(
-       'SELECT * FROM fredouil.compte WHERE email = $1',
+       'SELECT * FROM fredouil.compte WHERE mail = $1',
        [email]
      );
 
