@@ -8,6 +8,8 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import pkg from 'pg';
 const { Pool } = pkg;
+import crypto from 'crypto';
+import session from 'express-session';
 import * as dotenv from 'dotenv';
  
 dotenv.config();
