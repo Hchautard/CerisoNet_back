@@ -105,7 +105,7 @@ app.post('/login', async (req, res) => {
      // Hachage du mot de passe en SHA1
      const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
      
-     if (!user || user.motpasse !== password) {
+     if (!user || user.motpasse !== hashedPassword) {
        return res.status(401).json({
          success: false,
          message: "Email ou mot de passe incorrect"
