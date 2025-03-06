@@ -12,27 +12,6 @@ import * as dotenv from 'dotenv';
  
 dotenv.config();
 
-// Config de la connexion à PostgreSQL
-const pgPool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: parseInt(process.env.DB_PORT || '5432'),
-});
-
-console.log(pgPool)
-
-// Vérification de la connexion à PostgreSQL
-pgPool.connect((err, client, done) => {
-  if (err) {
-    console.error("Erreur de connexion à PostgreSQL:", err);
-  } else {
-    console.log("Connexion à PostgreSQL réussie");
-  }
-});
-
-
 // Obtention du chemin absolu du fichier
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -82,8 +61,29 @@ const authMiddleware = (req, res, next) => {
 
 // Informations de connexion à PostgreSQL
 
-// Route de connexion (TODO: ajouter une véritable authentification)
+// Route de connexion 
 app.post('/login', async (req, res) => {
+
+    // Config de la connexion à PostgreSQL
+    const pgPool = new Pool({
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: parseInt(process.env.DB_PORT || '5432'),
+    });
+
+    console.log(pgPool)
+
+    // Vérification de la connexion à PostgreSQL
+    pgPool.connect((err, client, done) => {
+      if (err) {
+        console.error("Erreur de connexion à PostgreSQL:", err);
+      } else {
+        console.log("Connexion à PostgreSQL réussie");
+      }
+    });
+
    try {
      const { email, password } = req.body;
      
