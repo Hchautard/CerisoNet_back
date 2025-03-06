@@ -104,7 +104,7 @@ app.post('/login', async (req, res) => {
      // Vérifiez si l'utilisateur existe et si le mot de passe correspond
      // Hachage du mot de passe en SHA1
      const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
-     console.log(user, hashedPassword);
+     
      if (!user || user.motpasse !== password) {
        return res.status(401).json({
          success: false,
@@ -115,7 +115,7 @@ app.post('/login', async (req, res) => {
      // Stockez les informations de l'utilisateur dans la session
      req.session.user = {
        id: user.id,
-       email: user.email,
+       mail: user.mail,
        nom: user.nom,
        prenom: user.prenom,
        lastLogin: new Date().toISOString()
@@ -127,7 +127,7 @@ app.post('/login', async (req, res) => {
        message: "Connexion réussie",
        user: {
          id: user.id,
-         email: user.email,
+         mail: user.mail,
          nom: user.nom,
          prenom: user.prenom,
          lastLogin: new Date().toISOString()
