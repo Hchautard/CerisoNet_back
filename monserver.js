@@ -10,7 +10,7 @@ import pkg from 'pg';
 const { Pool } = pkg;
 import crypto from 'crypto';
 import session from 'express-session';
-import connectMongo from 'connect-mongo';
+import { MongoDBStore } from "connect-mongodb-session";
 import * as dotenv from 'dotenv';
  
 dotenv.config();
@@ -49,9 +49,9 @@ const options = {
 };
 
 // Configuration de MongoDB pour les sessions
-const MongoDBStore = connectMongo(session);
+const MongoDBStore = require('connect-mongodb-session')(session);
 const store = new MongoDBStore({
-  uri: process.env.MONGO_URI || 'mongodb://localhost:27017/cerisodb',
+  uri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cerisodb',
   collection: 'MySession3221', // Collection propre basée sur votre port
   expires: 1000 * 60 * 60 * 24 * 7, // 1 semaine
 });
