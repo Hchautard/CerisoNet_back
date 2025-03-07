@@ -10,6 +10,7 @@ import pkg from 'pg';
 const { Pool } = pkg;
 import crypto from 'crypto';
 import session from 'express-session';
+import connectMongo from 'connect-mongo';
 import * as dotenv from 'dotenv';
  
 dotenv.config();
