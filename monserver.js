@@ -47,6 +47,34 @@ const options = {
     cert: fs.readFileSync("certificate.pem"),
 };
 
+// Configuration de MongoDB pour les sessions
+const MongoDBStore = connectMongo(session);
+const store = new MongoDBStore({
+  uri: process.env.MONGO_URI || 'mongodb://localhost:27017/cerisodb',
+  collection: 'MySession3221', // Collection propre basée sur votre port
+  expires: 1000 * 60 * 60 * 24 * 7, // 1 semaine
+});
+
+// Gestion des erreurs de MongoDB
+store.on('error', function(error) {
+  console.log('Erreur de stockage de session MongoDB:', error);
+});
+
+// Configuration des sessions
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'cerisonet_secret_key',
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 semaine
+    secure: true, // pour HTTPS
+    httpOnly: true,
+    sameSite: 'none'
+  },
+  store: store,
+  resave: false,
+  saveUninitialized: false,
+  name: 'cerisonet.sid'
+}));
+
 // Route principale (renvoi le index.html de l'application)
 app.get('/', (req, res) => {
     res.sendFile("index.html", { root: path.join(__dirname, "/CerisoNet/dist/ceriso-net/browser/") });
