@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@angular/cli": "^17.1.5",
+    "connect-mongo": "^5.1.0",
     "connect-mongodb-session": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
