@@ -52,7 +52,7 @@ const options = {
 const MongoDBStore = connectMongoDBSession(session);
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cerisodb',
-  collection: 'MySession3221', // Collection propre basée sur votre port
+  collection: 'MySession3221',
   expires: 1000 * 60 * 60 * 24 * 7, // 1 semaine
 });
 
@@ -65,8 +65,8 @@ store.on('error', function(error) {
 app.use(session({
   secret: process.env.SESSION_SECRET || 'cerisonet_secret_key',
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 semaine
-    secure: true, // pour HTTPS
+    maxAge: 1000 * 60 * 60 * 24 * 7, 
+    secure: true, 
     httpOnly: true,
     sameSite: 'none'
   },
@@ -163,11 +163,18 @@ app.post('/login', async (req, res) => {
        }
      });
    } catch (error) {
-     console.error("Erreur de connexion:", error);
-     res.status(500).json({
-       success: false,
-       message: "Erreur de serveur lors de la connexion"
-     });
+      console.error("Erreur lors de la connexion:", error);
+    if (error.code === 'ECONNREFUSED') {
+      return res.status(500).json({
+        success: false,
+        message: "Erreur de connexion à la base de données"
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "Erreur serveur lors de la connexion"
+      });
+    }
    }
 });
 
