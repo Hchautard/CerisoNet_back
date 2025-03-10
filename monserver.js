@@ -137,7 +137,7 @@ app.post('/login', async (req, res) => {
      if (!user || user.motpasse !== hashedPassword) {
        return res.status(401).json({
          success: false,
-         message: "Email ou mot de passe incorrect"
+         message: !user ? "Utilisateur non trouvé" : "Mot de passe incorrect"
        });
      }
 
@@ -204,6 +204,7 @@ app.post('/logout', (req, res) => {
   });
 });
 
+// Post bidon pour tester l'authentification
 // Route pour récupérer les posts pour le mur d'accueil
 app.get('/posts', authMiddleware, async (req, res) => {
   try {
