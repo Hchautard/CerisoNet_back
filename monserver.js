@@ -470,7 +470,7 @@ app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       
       // Construire l'objet post final
       return {
-        id: post._id.toString(),
+        id: post._id,
         content: post.body || "",
         author: authorInfo.name,
         authorId: post.createdBy,
@@ -608,7 +608,7 @@ io.on('connection', (socket) => {
       // Conversion en ObjectId pour MongoDB
       let postObjectId;
       try {
-        postObjectId = new ObjectId(postId.toString());
+        postObjectId = new ObjectId(postId);
       } catch (error) {
         console.error("ID de post invalide pour like:", error);
         socket.emit('error', { message: "Format d'ID de post invalide" });
@@ -650,7 +650,7 @@ io.on('connection', (socket) => {
       
       // Notification à tous les utilisateurs du nouveau like
       io.emit('post-liked', {
-        postId: postId.toString(),
+        postId: postId,
         userId,
         totalLikes
       });
@@ -713,7 +713,7 @@ io.on('connection', (socket) => {
       // Notification à tous les utilisateurs du nouveau commentaire
       io.emit('new-comment', {
         id: newComment.id,
-        postId: postId.toString(),
+        postId: postId,
         userId,
         userName,
         commentedByName: userName,
@@ -770,7 +770,7 @@ io.on('connection', (socket) => {
       createdBy: userId,
       date: dateStr,
       hour: timeStr,
-      originalPost: postId.toString(),
+      originalPost: postId,
       sharedFrom: post.createdBy,
       likes: 0,
       likedBy: [],
@@ -795,8 +795,8 @@ io.on('connection', (socket) => {
     
     // Notification à tous les utilisateurs du nouveau partage
     io.emit('post-shared', {
-      postId: postId.toString(),
-      newPostId: result.insertedId.toString(),
+      postId: postId,
+      newPostId: result.insertedId,
       userId,
       userName,
       date: now.toISOString()
@@ -806,7 +806,7 @@ io.on('connection', (socket) => {
     socket.emit('share-success', {
       success: true,
       message: "Post partagé avec succès",
-      newPostId: result.insertedId.toString()
+      newPostId: result.insertedId
     });
     
   } catch (error) {
