@@ -677,7 +677,7 @@ io.on('connection', (socket) => {
       // Conversion en ObjectId pour MongoDB
       let postObjectId;
       try {
-        postObjectId = new ObjectId(postId.toString());
+        postObjectId = new ObjectId(postId);
       } catch (error) {
         console.error("ID de post invalide pour commentaire:", error);
         socket.emit('error', { message: "Format d'ID de post invalide" });
@@ -690,7 +690,7 @@ io.on('connection', (socket) => {
       const timeStr = now.toTimeString().split(' ')[0];
       
       const newComment = {
-        id: new ObjectId().toString(), // Générer un ID unique
+        id: new ObjectId(), // Générer un ID unique
         commentedBy: userId,
         text: content,
         date: dateStr,
