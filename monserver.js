@@ -596,39 +596,135 @@ io.on('connection', (socket) => {
   socket.on('like-post', async (data) => {
     try {
       const { postId, userId } = data;
-      // Ici, vous ajouteriez le code pour sauvegarder le like dans MongoDB
+      
+      // Validation des données
+      if (!postId || !userId) {
+        socket.emit('error', { message: "Données de like incomplètes" });
+        return;
+      }
+      
+      console.log(`Tentative de like du post ${postId} par l'utilisateur ${userId}`);
+      
+      // Conversion en ObjectId pour MongoDB
+      let postObjectId;
+      try {
+        postObjectId = new ObjectId(postId.toString());
+      } catch (error) {
+        console.error("ID de post invalide pour like:", error);
+        socket.emit('error', { message: "Format d'ID de post invalide" });
+        return;
+      }
+      
+      // Vérifier si l'utilisateur a déjà liké ce post
+      const post = await cerisonetCollection.findOne({ 
+        _id: postObjectId,
+        likedBy: { $elemMatch: { $eq: userId } }
+      });
+      
+      let totalLikes;
+      
+      if (post) {
+        // L'utilisateur a déjà liké ce post, on pourrait soit ne rien faire,
+        // soit retirer le like (dislike)
+        socket.emit('error', { message: "Vous avez déjà liké ce post" });
+        return;
+      } else {
+        // Ajouter le like et incrémenter le compteur
+        const updateResult = await cerisonetCollection.updateOne(
+          { _id: postObjectId },
+          { 
+            $inc: { likes: 1 },
+            $push: { likedBy: userId }
+          }
+        );
+        
+        if (!updateResult.matchedCount) {
+          socket.emit('error', { message: "Post non trouvé" });
+          return;
+        }
+        
+        // Récupérer le nombre total de likes après mise à jour
+        const updatedPost = await cerisonetCollection.findOne({ _id: postObjectId });
+        totalLikes = updatedPost.likes || 1;
+      }
       
       // Notification à tous les utilisateurs du nouveau like
       io.emit('post-liked', {
-        postId,
+        postId: postId.toString(),
         userId,
-        totalLikes: data.newLikeCount // Vous calculerez ce nombre côté serveur en réalité
+        totalLikes
       });
+      
     } catch (error) {
       console.error("Erreur lors du traitement du like:", error);
+      socket.emit('error', { message: "Erreur lors du traitement du like" });
     }
   });
   
   // Gestion des commentaires
   socket.on('add-comment', async (data) => {
     try {
-      const { postId, userId, content } = data;
-      // Ici, vous ajouteriez le code pour sauvegarder le commentaire dans MongoDB
+      const { postId, userId, content, userName } = data;
       
-      // Création d'un ID pour le commentaire (temporaire - dans le vrai code, il viendrait de MongoDB)
-      const commentId = Date.now().toString();
+      // Validation des données
+      if (!postId || !userId || !content) {
+        socket.emit('error', { message: "Données de commentaire incomplètes" });
+        return;
+      }
+      
+      console.log(`Tentative d'ajout de commentaire au post ${postId} par l'utilisateur ${userId}`);
+      
+      // Conversion en ObjectId pour MongoDB
+      let postObjectId;
+      try {
+        postObjectId = new ObjectId(postId.toString());
+      } catch (error) {
+        console.error("ID de post invalide pour commentaire:", error);
+        socket.emit('error', { message: "Format d'ID de post invalide" });
+        return;
+      }
+      
+      // Création du commentaire
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const timeStr = now.toTimeString().split(' ')[0];
+      
+      const newComment = {
+        id: new ObjectId().toString(), // Générer un ID unique
+        commentedBy: userId,
+        text: content,
+        date: dateStr,
+        hour: timeStr
+      };
+      
+      // Ajouter le commentaire au post
+      const updateResult = await cerisonetCollection.updateOne(
+        { _id: postObjectId },
+        { $push: { comments: newComment } }
+      );
+      
+      if (!updateResult.matchedCount) {
+        socket.emit('error', { message: "Post non trouvé" });
+        return;
+      }
+      
+      console.log(`Commentaire ajouté avec succès au post ${postId}`);
       
       // Notification à tous les utilisateurs du nouveau commentaire
       io.emit('new-comment', {
-        id: commentId,
-        postId,
+        id: newComment.id,
+        postId: postId.toString(),
         userId,
-        userName: data.userName,
-        content,
-        date: new Date().toISOString()
+        userName,
+        commentedByName: userName,
+        text: content,
+        date: dateStr,
+        hour: timeStr
       });
+      
     } catch (error) {
       console.error("Erreur lors de l'ajout du commentaire:", error);
+      socket.emit('error', { message: "Erreur lors de l'ajout du commentaire" });
     }
   });
   
@@ -648,7 +744,7 @@ io.on('connection', (socket) => {
     // Conversion de l'ID du post en ObjectId pour MongoDB
     let postObjectId;
     try {
-      postObjectId = new ObjectId(postId.toString());  // Conversion en string puis en ObjectId
+      postObjectId = new ObjectId(postId);  // Conversion en string puis en ObjectId
     } catch (error) {
       console.error("ID de post invalide:", error);
       socket.emit('error', { message: "Format d'ID de post invalide" });
