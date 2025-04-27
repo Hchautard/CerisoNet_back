@@ -330,7 +330,7 @@ app.get('/users/connected', authMiddleware, async (req, res) => {
     
     // Récupérer les utilisateurs avec statut_connexion = 1
     const result = await pgPool.query(
-      'SELECT id, nom, prenom FROM fredouil.compte WHERE statut_connexion = 1'
+      'SELECT id, nom, prenom, avatar FROM fredouil.compte WHERE statut_connexion = 1'
     );
     
     res.status(200).json({
@@ -504,27 +504,29 @@ app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       port: parseInt(process.env.DB_PORT || '5432'),
     });
     
-    const usersResult = await pgPool.query('SELECT id, nom, prenom FROM fredouil.compte');
+    const usersResult = await pgPool.query('SELECT id, nom, prenom, avatar FROM fredouil.compte');
     const usersMap = new Map();
     usersResult.rows.forEach(user => {
       usersMap.set(user.id, {
         name: `${user.prenom} ${user.nom}`,
         prenom: user.prenom,
-        nom: user.nom
+        nom: user.nom,
+        avatar: user.avatar
       });
     });
     
     // Transformer les posts pour le format attendu par le frontend
     const posts = await Promise.all(mongoMessages.map(async post => {
       // Récupérer les infos de l'auteur
-      const authorInfo = usersMap.get(post.createdBy) || { name: "Utilisateur inconnu" };
+      const authorUser = usersMap.get(post.createdBy) || { name: "Utilisateur inconnu" };
       
       // Gérer les commentaires (ajouter les noms des commentateurs)
       const commentWithNames = post.comments ? post.comments.map(comment => {
         const commentAuthor = usersMap.get(comment.commentedBy) || { name: "Utilisateur inconnu" };
         return {
           ...comment,
-          commentedByName: commentAuthor.name
+          commentedByName: commentAuthor.name,
+          commentedByAvatar: commentAuthor.avatar
         };
       }) : [];
       
@@ -539,7 +541,8 @@ app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       return {
         id: post._id,
         content: post.body || "",
-        author: authorInfo.name,
+        author: authorUser.name,
+        authorAvatar: authorUser.avatar || "",
         authorId: post.createdBy,
         likes: post.likes || 0,
         likedBy: post.likedBy || [],
