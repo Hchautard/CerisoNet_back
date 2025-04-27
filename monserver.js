@@ -438,12 +438,57 @@ app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       filter.hashtags = req.query.hashtag;
     }
 
+    // Filtre par propriétaire (si demandé)
+    if (req.query.filterByOwner && req.query.userId) {
+      const userId = parseInt(req.query.userId);
+      
+      if (req.query.filterByOwner === 'me') {
+        // Afficher uniquement les posts de l'utilisateur connecté
+        filter.createdBy = userId;
+      } else if (req.query.filterByOwner === 'others') {
+        // Afficher uniquement les posts des autres utilisateurs
+        filter.createdBy = { $ne: userId };
+      }
+      // 'all' ne nécessite pas de filtre particulier
+    }
+
     // Compte total des posts pour la pagination
     const totalPosts = await cerisonetCollection.countDocuments(filter);
     
-    // Récupération des posts depuis la collection CERISoNet, triés par date décroissante avec pagination
+    // Configuration du tri
+    let sortOptions = {};
+    
+    if (req.query.sortBy) {
+      const direction = req.query.sortDirection === 'asc' ? 1 : -1;
+      
+      switch(req.query.sortBy) {
+        case 'date':
+          // Tri par date
+          sortOptions = { date: direction, hour: direction };
+          break;
+        case 'owner':
+          // Tri par propriétaire
+          // Pour trier par propriétaire, nous devons effectuer une agrégation plus complexe
+          // ou un tri côté application, car nous avons besoin des informations utilisateur
+          // Pour simplifier, nous utiliserons createdBy comme critère de tri
+          sortOptions = { createdBy: direction, date: -1, hour: -1 };
+          break;
+        case 'popularity':
+          // Tri par popularité (nombre de likes)
+          sortOptions = { likes: direction, date: -1, hour: -1 };
+          break;
+        default:
+          // Tri par défaut: date décroissante
+          sortOptions = { date: -1, hour: -1 };
+      }
+    } else {
+      // Tri par défaut: date décroissante
+      sortOptions = { date: -1, hour: -1 };
+    }
+    
+    // Récupération des posts depuis la collection CERISoNet avec tri et pagination
     const mongoMessages = await cerisonetCollection.find(filter)
-      .sort({ date: -1, hour: -1 })
+      .sort(sortOptions)
       .skip(skip)
       .limit(pageSize)
       .toArray();
