@@ -398,11 +398,13 @@ app.post('/logout', async (req, res) => {
 });
 
 /**
- * 
- * Route pour récupérer les posts du mur d'accueil
+ * Route pour récupérer les posts du mur d'accueil avec pagination
  * Nécessite d'être authentifié (via authMiddleware)
  * 
- * Se connecter à MongoDB pour récupérer les vrais posts
+ * Paramètres de requête:
+ * - page: numéro de page (défaut: 1)
+ * - pageSize: nombre de posts par page (défaut: 10)
+ * - hashtag: (optionnel) filtre par hashtag
  */
 app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
   try {
@@ -423,10 +425,30 @@ app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       }
     }
 
-    // Récupération des posts depuis la collection CERISoNet, triés par date décroissante
-    const mongoMessages = await cerisonetCollection.find({}).sort({ date: -1, hour: -1 }).limit(20).toArray();
+    // Récupération des paramètres de pagination
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * pageSize;
+    
+    // Construction du filtre
+    const filter = {};
+    
+    // Filtre par hashtag si présent
+    if (req.query.hashtag) {
+      filter.hashtags = req.query.hashtag;
+    }
 
-    console.log("Récupération des posts depuis MongoDB réussie, nombre de posts:", mongoMessages.length);
+    // Compte total des posts pour la pagination
+    const totalPosts = await cerisonetCollection.countDocuments(filter);
+    
+    // Récupération des posts depuis la collection CERISoNet, triés par date décroissante avec pagination
+    const mongoMessages = await cerisonetCollection.find(filter)
+      .sort({ date: -1, hour: -1 })
+      .skip(skip)
+      .limit(pageSize)
+      .toArray();
+
+    console.log(`Récupération des posts depuis MongoDB réussie, page ${page}, taille ${pageSize}, nombre de posts: ${mongoMessages.length}`);
     
     // Récupération des utilisateurs pour obtenir les noms d'auteurs
     const pgPool = new Pool({
@@ -489,7 +511,11 @@ app.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
     
     res.status(200).json({
       success: true,
-      posts
+      posts,
+      total: totalPosts,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalPosts / pageSize)
     });
   } catch (error) {
     console.error("Erreur lors de la récupération des posts:", error);
