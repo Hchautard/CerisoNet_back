@@ -44,7 +44,7 @@ const app = express();
 app.use(express.json());
 
 // ======= CONFIGURATION DES FICHIERS STATIQUES =======
-app.use(express.static(__dirname + '/CerisoNet/dist/ceriso-net/browser/', {
+app.use(express.static(__dirname + '../../CerisoNet/dist/ceriso-net/browser/', {
   setHeaders: function (res, path) {
     if (path.endsWith('.css')) {
       res.set('Content-Type', 'text/css');

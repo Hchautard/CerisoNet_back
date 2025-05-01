@@ -23,5 +23,5 @@ export const httpsOptions = {
 export const serverConfig = {
   portHTTPS: process.env.PORT_HTTPS || 3221,
   frontendURL: "https://localhost:3222",
-  staticDir: '../../CerisoNet/dist/ceriso-net/browser/'
+  staticDir: './../../CerisoNet/dist/ceriso-net/browser/'
 };
