@@ -5,8 +5,8 @@
   "main": "monserver.js",
   "type": "module",
   "scripts": {
-    "start-node": "node config/monserver.js",
-    "start-quarkus": "cd ./api_quarkus && java -jar target/quarkus-app/quarkus-run.jar",
+    "start-node": "node monserver.js",
+    "start-quarkus": "cd ../api_quarkus && java -jar target/quarkus-app/quarkus-run.jar",
     "start": "concurrently \"npm run start-node\" \"npm run start-quarkus\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

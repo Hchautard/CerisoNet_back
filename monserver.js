@@ -27,7 +27,7 @@ import postsRoutes from "./routes/posts.js";
 import usersRoutes from "./routes/users.js";
 
 // Import de la configuration socket.io
-import { configureSocketIO } from "./socket/socket.js";
+import { configureSocketIO } from "./sockets/socket.js";
 
 // Chargement des variables d'environnement depuis .env
 dotenv.config();
