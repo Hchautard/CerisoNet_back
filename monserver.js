@@ -62,10 +62,13 @@ app.use(cors({
 // ======= CONFIGURATION DES SESSIONS =======
 configureSession(app);
 
+// ======= CONFIGURATION DE SWAGGER =======
+setupSwagger(app);
+
 // ======= ROUTES =======
 // Route principale
 app.get('/', (req, res) => {
-    res.sendFile("index.html", { root: path.join(__dirname, "/CerisoNet/dist/ceriso-net/browser/") });
+    res.sendFile("index.html", { root: path.join(__dirname, "../../CerisoNet/dist/ceriso-net/browser/") });
 });
 
 // Montage des routes
