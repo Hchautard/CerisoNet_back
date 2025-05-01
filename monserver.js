@@ -44,7 +44,7 @@ const app = express();
 app.use(express.json());
 
 // ======= CONFIGURATION DES FICHIERS STATIQUES =======
-app.use(express.static(__dirname + '/CerisoNet/dist/ceriso-net/browser/', {
+app.use(express.static(__dirname + '../../CerisoNet/dist/ceriso-net/browser/', {
   setHeaders: function (res, path) {
     if (path.endsWith('.css')) {
       res.set('Content-Type', 'text/css');
@@ -65,7 +65,7 @@ configureSession(app);
 // ======= ROUTES =======
 // Route principale
 app.get('/', (req, res) => {
-    res.sendFile("index.html", { root: path.join(__dirname, "/CerisoNet/dist/ceriso-net/browser/") });
+    res.sendFile("index.html", { root: path.join(__dirname, "../../CerisoNet/dist/ceriso-net/browser/") });
 });
 
 // Montage des routes
