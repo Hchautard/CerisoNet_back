@@ -11,7 +11,7 @@ import { getCerisonetCollection } from '../../services/mongo.js';
  * @param {SocketServer} io - Instance de Socket.IO
  * @param {Socket} socket - Connexion socket individuelle
  */
-export default likeHandler = (io, socket) => {
+const likeHandler = (io, socket) => {
   
   /**
    * Gère l'événement 'like-post'
@@ -93,3 +93,5 @@ export default likeHandler = (io, socket) => {
     }
   });
 };
+
+export default likeHandler;
