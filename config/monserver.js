@@ -19,6 +19,7 @@ import * as dotenv from 'dotenv';
 import { httpsOptions } from "./config/server.js";
 import { configureSession } from "./config/session.js";
 import { connectToMongoDB } from "./services/mongo.js";
+import { setupSwagger } from "./config/swagger.js";
 
 // Import des routes
 import authRoutes from "./routes/auth.js";
@@ -85,6 +86,7 @@ configureSocketIO(httpsServer);
 
 // ======= INITIALISATION DE MONGODB =======
 connectToMongoDB().then(() => {
+
   // ======= DÉMARRAGE DU SERVEUR =======
   httpsServer.listen(PORT_HTTPS, () => {
     console.log(`Serveur HTTPS en écoute sur https://localhost:${PORT_HTTPS}`);
