@@ -32,13 +32,9 @@ const likeHandler = (io, socket) => {
         return;
       }
       
-      // Conversion en ObjectId pour MongoDB
-      let postObjectId;
-      postObjectId = new ObjectId(postId);
-      console.log(postId, postObjectId);
       // Vérifier si l'utilisateur a déjà liké ce post
       const post = await cerisonetCollection.findOne({ 
-        _id: postObjectId,
+        _id: postId,
         likedBy: userId
       });
       
@@ -48,7 +44,7 @@ const likeHandler = (io, socket) => {
       } else {
         
         const updateResult = await cerisonetCollection.updateOne(
-          { _id: postObjectId },
+          { _id: postId },
           { 
             $inc: { likes: 1 },
             $push: { likedBy: userId }
