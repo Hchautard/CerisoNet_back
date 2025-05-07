@@ -23,12 +23,6 @@ const likeHandler = (io, socket) => {
     try {
       const { postId, userId } = data;
       
-      // Validation des données
-      if (!postId || !userId) {
-        socket.emit('error', { message: "Données de like incomplètes" });
-        return;
-      }
-      
       console.log(`Tentative de like du post ${postId} par l'utilisateur ${userId}`);
       
       // Récupération de la collection MongoDB
@@ -40,28 +34,19 @@ const likeHandler = (io, socket) => {
       
       // Conversion en ObjectId pour MongoDB
       let postObjectId;
-      try {
-        postObjectId = new ObjectId(postId);
-      } catch (error) {
-        console.error("ID de post invalide pour like:", error);
-        socket.emit('error', { message: "Format d'ID de post invalide" });
-        return;
-      }
-      
+      postObjectId = new ObjectId(postId);
+      console(postId, postObjectId);
       // Vérifier si l'utilisateur a déjà liké ce post
       const post = await cerisonetCollection.findOne({ 
         _id: postObjectId,
-        likedBy: { $elemMatch: { $eq: userId } }
+        likedBy: userId
       });
       
-      let totalLikes;
-      
       if (post) {
-        // L'utilisateur a déjà liké ce post
         socket.emit('error', { message: "Vous avez déjà liké ce post" });
         return;
       } else {
-        // Ajouter le like et incrémenter le compteur
+        
         const updateResult = await cerisonetCollection.updateOne(
           { _id: postObjectId },
           { 
@@ -75,16 +60,12 @@ const likeHandler = (io, socket) => {
           return;
         }
         
-        // Récupérer le nombre total de likes après mise à jour
-        const updatedPost = await cerisonetCollection.findOne({ _id: postObjectId });
-        totalLikes = updatedPost.likes || 1;
       }
       
-      // Notification à tous les utilisateurs du nouveau like
+      // Notification du like à l' utilisateur
       io.emit('post-liked', {
         postId: postId,
-        userId,
-        totalLikes
+        userId: userId,
       });
       
     } catch (error) {
