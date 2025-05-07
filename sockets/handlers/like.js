@@ -62,11 +62,18 @@ const likeHandler = (io, socket) => {
       io.emit('post-liked', {
         postId: postId,
         userId: userId,
+        success: true
       });
       
     } catch (error) {
       console.error("Erreur lors du traitement du like:", error);
       socket.emit('error', { message: "Erreur lors du traitement du like" });
+
+      socket.emit('post-liked', {
+        postId: data.postId,
+        userId: data.userId,
+        success: false
+      });
     }
   });
 };
