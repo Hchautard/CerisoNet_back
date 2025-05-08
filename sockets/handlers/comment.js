@@ -23,30 +23,14 @@ const commentHandler = (io, socket) => {
    */
   socket.on('add-comment', async (data) => {
     try {
-      const { postId, userId, content, userName } = data;
-      
-      // Validation des données
-      if (!postId || !userId || !content) {
-        socket.emit('error', { message: "Données de commentaire incomplètes" });
-        return;
-      }
-      
+      const { postId, userId, userName, content } = data;
+      console.log(postId, userId, userName, content);
       console.log(`Tentative d'ajout de commentaire au post ${postId} par l'utilisateur ${userId}`);
       
       // Récupération de la collection MongoDB
       const cerisonetCollection = await getCerisonetCollection();
       if (!cerisonetCollection) {
         socket.emit('error', { message: "Erreur de connexion à la base de données MongoDB" });
-        return;
-      }
-      
-      // Conversion en ObjectId pour MongoDB
-      let postObjectId;
-      try {
-        postObjectId = new ObjectId(postId);
-      } catch (error) {
-        console.error("ID de post invalide pour commentaire:", error);
-        socket.emit('error', { message: "Format d'ID de post invalide" });
         return;
       }
       
@@ -62,10 +46,10 @@ const commentHandler = (io, socket) => {
         date: dateStr,
         hour: timeStr
       };
-      
+      console.log(newComment);
       // Ajouter le commentaire au post
       const updateResult = await cerisonetCollection.updateOne(
-        { _id: postObjectId },
+        { _id: postId },
         { $push: { comments: newComment } }
       );
       
@@ -76,7 +60,6 @@ const commentHandler = (io, socket) => {
       
       console.log(`Commentaire ajouté avec succès au post ${postId}`);
       
-      // Notification à tous les utilisateurs du nouveau commentaire
       io.emit('new-comment', {
         id: newComment.id,
         postId: postId,
