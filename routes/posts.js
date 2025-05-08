@@ -48,7 +48,7 @@ router.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       filter.hashtags = req.query.hashtag;
     }
 
-    // Filtre par propriétaire (si demandé)
+    // Filtre par propriétaire 
     if (req.query.filterByOwner && req.query.userId) {
       const userId = parseInt(req.query.userId);
       

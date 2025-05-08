@@ -24,7 +24,7 @@ const commentHandler = (io, socket) => {
   socket.on('add-comment', async (data) => {
     try {
       const { postId, userId, userName, content } = data;
-      console.log(postId, userId, userName, content);
+      
       console.log(`Tentative d'ajout de commentaire au post ${postId} par l'utilisateur ${userId}`);
       
       // Récupération de la collection MongoDB
@@ -46,14 +46,14 @@ const commentHandler = (io, socket) => {
         date: dateStr,
         hour: timeStr
       };
-      console.log(newComment);
+      
       // Ajouter le commentaire au post
       const updateResult = await cerisonetCollection.updateOne(
         { _id: postId },
         { $push: { comments: newComment } }
       );
       
-      if (!updateResult.matchedCount) {
+      if (!updateResult) {
         socket.emit('error', { message: "Post non trouvé" });
         return;
       }

@@ -137,7 +137,7 @@ const router = express.Router();
  *                   type: string
  *                   example: Erreur serveur lors de la connexion
  */
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   try {
     // Récupération des identifiants
     const { email, password } = req.body;
@@ -251,7 +251,7 @@ router.post('/login', async (req, res) => {
  *                   type: string
  *                   example: Erreur lors de la déconnexion
  */
-router.post('/logout', async (req, res) => {
+router.post('/logout', async (req, res, next) => {
   try {
     // Récupérer l'ID de l'utilisateur avant de détruire la session
     const userId = req.session.user ? req.session.user.id : null;

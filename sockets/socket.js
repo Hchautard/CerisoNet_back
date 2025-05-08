@@ -49,7 +49,7 @@ export const configureSocketIO = (server) => {
         
         // Récupération de tous les utilisateurs connectés
         try {
-          const connectedUsersData = await getConnectedUsers(userData.id);
+          const connectedUsersData = await getConnectedUsers();
           
           // Notification à tous les autres utilisateurs de la nouvelle connexion
           socket.broadcast.emit('user-connected', {

@@ -38,21 +38,14 @@ export const updateUserConnectionStatus = async (userId, status) => {
 
 /**
  * Récupère les utilisateurs connectés (statut_connexion = 1)
- * @param {number} excludeUserId - ID de l'utilisateur à exclure (optionnel)
  * @returns {Promise<Array>} Liste des utilisateurs connectés
  */
-export const getConnectedUsers = async (excludeUserId = null) => {
+export const getConnectedUsers = async () => {
   try {
     const pool = await getPostgresPool();
     
     let query = 'SELECT id, nom, prenom, avatar FROM fredouil.compte WHERE statut_connexion = 1';
     const params = [];
-    
-    // Si on souhaite exclure un utilisateur spécifique
-    if (excludeUserId) {
-      query += ' AND id != $1';
-      params.push(excludeUserId);
-    }
     
     const result = await pool.query(query, params);
     return result.rows;
