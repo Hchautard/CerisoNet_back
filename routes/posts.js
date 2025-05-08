@@ -35,12 +35,12 @@ router.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
       });
     }
 
-    // Récupération des paramètres de pagination
+    // Paramètres de pagination
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
+    // Saut dans les posts
     const skip = (page - 1) * pageSize;
     
-    // Construction du filtre
     const filter = {};
     
     // Filtre par hashtag si présent
@@ -59,7 +59,7 @@ router.get('/posts', authMiddleware, checkMongoConnection, async (req, res) => {
         // Afficher uniquement les posts des autres utilisateurs
         filter.createdBy = { $ne: userId };
       }
-      // 'all' ne nécessite pas de filtre particulier
+      // Par défaut c'est 'all'
     }
 
     // Compte total des posts pour la pagination
